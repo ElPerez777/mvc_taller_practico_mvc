@@ -3,52 +3,63 @@ package com.uniajc.config;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 
+/**
+ * Gestiona la conexion a la base de datos PostgreSQL (NeonDB).
+ * IMPORTANTE: Crea una conexion nueva por cada llamada para ser compatible
+ * con try-with-resources en los DAOs (evita el bug del singleton cerrado).
+ */
 public class ConexionPostgresDatabase {
-    private static Connection connection = null;
 
-    public static Connection getConnection() {
-        // Usamos un objeto Properties para cargar los parámetros de conexión desde un archivo de configuración
+    private static String url;
+    private static String user;
+    private static String password;
+    private static boolean configLoaded = false;
+
+    private static void loadConfig() {
+        if (configLoaded) return;
         Properties properties = new Properties();
-        if (connection == null) {
-            try {
-                // Cargar las propiedades desde el archivo config-postgres.properties
-                properties.load(new FileInputStream(new File("config.properties")));
-
-                // Definir los parámetros de conexión
-                String url = properties.getProperty("db.url");
-                String user = properties.getProperty("db.user");
-                String password = properties.getProperty("db.password");
-                
-                // Establecer la conexión
-                connection = DriverManager.getConnection(url, user, password);
-                System.out.println("Conexión a base de datos exitosa.");
-            } catch (SQLException error) {
-                System.out.println("Failed to establish database connection. " + error.getMessage());
-                error.printStackTrace();
-            } catch (FileNotFoundException error) {
-                error.printStackTrace();
-            } catch (IOException error) {
-                error.printStackTrace();
+        try (InputStream is = ConexionPostgresDatabase.class
+                .getClassLoader()
+                .getResourceAsStream("config.properties")) {
+            if (is == null) {
+                System.err.println("ERROR: No se encontro config.properties en el classpath.");
+                System.err.println("  Asegurate de que exista en src/main/resources/config.properties");
+                return;
             }
+            properties.load(is);
+            url      = properties.getProperty("db.url");
+            user     = properties.getProperty("db.user");
+            password = properties.getProperty("db.password");
+
+            if (url == null || user == null || password == null) {
+                System.err.println("ERROR: config.properties no contiene db.url, db.user o db.password.");
+                return;
+            }
+            configLoaded = true;
+        } catch (IOException e) {
+            System.err.println("ERROR al leer config.properties: " + e.getMessage());
+            e.printStackTrace();
         }
-        return connection;
     }
 
-    public static void closeConnection() {
-        if (connection != null) {
-            try {
-                connection.close();
-                System.out.println("Database connection closed successfully.");
-            } catch (SQLException e) {
-                e.printStackTrace();
-                System.out.println("Failed to close database connection. " + e.getMessage());
-            }
+    /**
+     * Retorna una conexion nueva a la BD. El llamador es responsable de cerrarla.
+     * Se recomienda usarla en un bloque try-with-resources.
+     */
+    public static Connection getConnection() {
+        loadConfig();
+        if (!configLoaded) return null;
+        try {
+            Connection conn = DriverManager.getConnection(url, user, password);
+            return conn;
+        } catch (SQLException e) {
+            System.err.println("ERROR al conectar a la base de datos: " + e.getMessage());
+            e.printStackTrace();
+            return null;
         }
     }
 }
