@@ -6,7 +6,7 @@ import java.sql.SQLException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
-
+ 
 
 public class ConexionPostgresDatabase {
 
