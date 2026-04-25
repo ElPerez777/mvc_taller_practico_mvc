@@ -7,11 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-/**
- * Gestiona la conexion a la base de datos PostgreSQL (NeonDB).
- * IMPORTANTE: Crea una conexion nueva por cada llamada para ser compatible
- * con try-with-resources en los DAOs (evita el bug del singleton cerrado).
- */
+
 public class ConexionPostgresDatabase {
 
     private static String url;
@@ -46,10 +42,7 @@ public class ConexionPostgresDatabase {
         }
     }
 
-    /**
-     * Retorna una conexion nueva a la BD. El llamador es responsable de cerrarla.
-     * Se recomienda usarla en un bloque try-with-resources.
-     */
+   
     public static Connection getConnection() {
         loadConfig();
         if (!configLoaded) return null;

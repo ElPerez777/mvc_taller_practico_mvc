@@ -7,7 +7,7 @@ import com.uniajc.modelo.Estudiante;
 
 public class EstudianteDao {
 
-    // ✅ SIN comillas (PostgreSQL lo maneja automáticamente en minúsculas)
+  
     private static final String SCHEMA = "practica_mvc";
 
     public boolean guardar(Estudiante e) {
