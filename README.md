@@ -63,3 +63,4 @@ Usa el archivo `config.properties` en la raíz para configurar tu conexión a My
 
 
 Primer actualización
+Segunda Actualización
