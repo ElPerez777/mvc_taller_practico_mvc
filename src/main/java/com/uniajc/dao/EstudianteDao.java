@@ -5,11 +5,8 @@ import java.util.*;
 import com.uniajc.config.ConexionPostgresDatabase;
 import com.uniajc.modelo.Estudiante;
 
-//tested
-
 public class EstudianteDao {
 
-  
     private static final String SCHEMA = "practica_mvc";
 
     public boolean guardar(Estudiante e) {
@@ -20,11 +17,6 @@ public class EstudianteDao {
 
         try (Connection conn = ConexionPostgresDatabase.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setString(1, e.getNombre());
-            ps.setString(2, e.getApellido());
-            ps.setString(3, e.getEmail());
-
 
             ps.setString(1, e.getNombre());
             ps.setString(2, e.getApellido());
@@ -84,11 +76,6 @@ public class EstudianteDao {
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
-        return lista;
-    }
-
-    public Estudiante obtenerPorId(int id) {
-        String sql = "SELECT id, name, lastname, email FROM " + SCHEMA + ".estudiantes WHERE id = ?";
         return null;
     }
 
@@ -97,45 +84,6 @@ public class EstudianteDao {
 
         try (Connection conn = ConexionPostgresDatabase.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setInt(1, id);
-
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    Estudiante e = new Estudiante();
-                    e.setId(rs.getInt("id"));
-                    e.setNombre(rs.getString("name"));
-                    e.setApellido(rs.getString("lastname"));
-                    e.setEmail(rs.getString("email"));
-                    return e;
-                }
-            }
-
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        }
-        return null;
-    }
-
-    public boolean actualizar(Estudiante e) {
-        String sql = "UPDATE " + SCHEMA + ".estudiantes SET name=?, lastname=?, email=? WHERE id=?";
-
-        try (Connection conn = ConexionPostgresDatabase.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setString(1, e.getNombre());
-            ps.setString(2, e.getApellido());
-            ps.setString(3, e.getEmail());
-            ps.setInt(4, e.getId());
-
-            ps.executeUpdate();
-            return true;
-
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-            return false;
-        }
-    }
 
             ps.setString(1, e.getNombre());
             ps.setString(2, e.getApellido());
